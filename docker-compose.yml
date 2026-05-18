@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 123
+    networks:
+      - net
+    volumes:
+      - ./src_data:/opt/src_data/
+      - ./sql_init_scripts/ddl_postgres.sql:/docker-entrypoint-initdb.d/ddl_postgres.sql
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "8123:8123"
+    environment:
+      CLICKHOUSE_PASSWORD: 123
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    networks:
+      - net
+    volumes:
+      - ./src_data:/opt/src_data/
+      - ./sql_init_scripts/ddl_clickhouse.sql:/docker-entrypoint-initdb.d/ddl_clickhouse.sql
+
+  trino:
+    image: trinodb/trino:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./trino_properties:/etc/trino/catalog
+      - ./trino_scripts:/opt/trino_scripts
+
+    networks:
+      - net
+
+
+networks:
+  net:
+    driver:
+      bridge
